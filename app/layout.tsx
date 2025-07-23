@@ -4,9 +4,14 @@ import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Easyplt',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  title: 'Easyply',
+  description: 'Easyply landing page - Building something amazing',
+  generator: 'Next.js',
+  icons: {
+    icon: 'favicon.ico', // Using your existing logo
+    shortcut: 'favicon.ico',
+    apple: 'favicon.ico.png',
+  },
 }
 
 export default function RootLayout({

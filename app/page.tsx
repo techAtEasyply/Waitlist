@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { motion, useScroll, useTransform, useInView } from "framer-motion"
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -17,12 +17,14 @@ import { Confetti } from "@/components/confetti"
 import { RotatingText } from "@/components/rotating-text"
 import { Ripple } from "@/components/ripple"
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect"
+import { Footer } from "@/components/footer"
+import { HeroVideoDialog } from "@/components/video-box"
 
 export default function WaitlistPage() {
   const [email, setEmail] = useState("")
   const [showConfetti, setShowConfetti] = useState(false)
   const [timeLeft, setTimeLeft] = useState({
-    days: 162,
+    days: 60,
     hours: 13,
     minutes: 22,
     seconds: 19,
@@ -131,6 +133,18 @@ export default function WaitlistPage() {
         }}
       />
 
+      {/* Top Left Brand Name */}
+      <motion.div
+        className="fixed top-6 left-6 z-20"
+        initial={{ opacity: 0, x: -30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+      >
+        <h1 className="text-2xl font-bold text-gray-300">
+          Easyply
+        </h1>
+      </motion.div>
+
       <div className="relative z-10">
         {/* Hero Section */}
         <div className="container mx-auto px-4 py-16 text-center">
@@ -165,7 +179,7 @@ export default function WaitlistPage() {
                 }}
                 transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
               />
-              AVAILABLE IN EARLY 2025
+              AVAILABLE IN 2025
             </Badge>
           </motion.div>
 
@@ -178,7 +192,7 @@ export default function WaitlistPage() {
               className="flex items-center justify-center gap-4 flex-wrap"
             >
               <span className="bg-gradient-to-b from-white via-gray-100 to-gray-400 bg-clip-text text-transparent">
-                Join the 
+                Join The 
               </span>
               <span className="bg-gradient-to-b from-lime-400 to-lime-500 bg-clip-text text-transparent">
                 Waitlist!
@@ -193,11 +207,17 @@ export default function WaitlistPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.7 }}
           >
-            <div className="text-xl text-gray-300 leading-relaxed backdrop-blur-sm">
+            <motion.div 
+              className="text-xl text-gray-300 leading-relaxed backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+            >
               <TextGenerateEffect 
-                words="Be amongst the first to experience Wait and launch a viral waitlist. Sign up to be notified when we launch!"
+                words="Be amongst the first to experience Easyply. Sign up to be notified when we launch!"
               />
-            </div>
+            </motion.div>
           </motion.div>
 
           {/* Email form with enhanced glowing effect */}
@@ -219,6 +239,7 @@ export default function WaitlistPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-400 focus:border-lime-400 transition-all duration-500 backdrop-blur-sm
+                  shadow-[0_0_20px_rgba(163,230,53,0.2)]
                   hover:shadow-[0_0_30px_rgba(163,230,53,0.4)] 
                   hover:border-lime-400/70 
                   hover:bg-gray-900/70
@@ -242,9 +263,19 @@ export default function WaitlistPage() {
             >
               <Button
                 type="submit"
-                className="bg-lime-400 text-black hover:bg-lime-300 font-semibold px-8 shadow-lg hover:shadow-lime-400/25 transition-all duration-300"
+                className="bg-lime-400 text-black hover:bg-lime-300 font-semibold px-8 shadow-lg hover:shadow-lime-400/25 transition-all duration-300 relative overflow-hidden"
               >
-                Join waitlist
+                <span className="relative z-10">Join waitlist</span>
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                  animate={{ x: [-100, 200] }}
+                  transition={{
+                    duration: 2,
+                    repeat: Number.POSITIVE_INFINITY,
+                    repeatDelay: 1,
+                    ease: "linear",
+                  }}
+                />
               </Button>
             </motion.div>
           </motion.form>
@@ -291,7 +322,7 @@ export default function WaitlistPage() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 1.6 }}
             >
-              Join 12,500+ others on the waitlist
+              Join 100+ others on the waitlist
             </motion.p>
           </motion.div>
 
@@ -304,7 +335,7 @@ export default function WaitlistPage() {
           >
             <div className="flex justify-center items-center gap-2 text-4xl md:text-6xl font-mono font-bold mb-4 flex-wrap">
               {[
-                { value: timeLeft.days.toString().padStart(3, "0"), label: "DAYS" },
+                { value: timeLeft.days.toString(), label: "DAYS" },
                 { value: timeLeft.hours.toString().padStart(2, "0"), label: "HOURS" },
                 { value: timeLeft.minutes.toString().padStart(2, "0"), label: "MINUTES" },
                 { value: timeLeft.seconds.toString().padStart(2, "0"), label: "SECONDS" },
@@ -322,24 +353,29 @@ export default function WaitlistPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: 1.5 + index * 0.1 }}
                     >
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-lime-400/10 to-transparent"
-                        animate={{ x: [-100, 200] }}
-                        transition={{
-                          duration: 3,
-                          repeat: Number.POSITIVE_INFINITY,
-                          delay: index * 0.5,
-                        }}
-                      />
-                      <motion.span
-                        key={item.value}
-                        initial={{ y: -20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                        className="relative z-10"
-                      >
-                        {item.value}
-                      </motion.span>
+                      <div className="relative z-10 flex">
+                        {item.value.split('').map((digit, digitIndex) => (
+                          <div key={digitIndex} className="overflow-hidden">
+                            <AnimatePresence mode="wait">
+                              <motion.span
+                                key={`${item.label}-${digitIndex}-${digit}`}
+                                initial={{ y: -30, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                exit={{ y: 30, opacity: 0 }}
+                                transition={{ 
+                                  duration: 0.4,
+                                  type: "spring",
+                                  stiffness: 300,
+                                  damping: 25
+                                }}
+                                className="block"
+                              >
+                                {digit}
+                              </motion.span>
+                            </AnimatePresence>
+                          </div>
+                        ))}
+                      </div>
                     </motion.div>
                     <div className="text-xs text-gray-400 mt-2 font-medium">{item.label}</div>
                   </motion.div>
@@ -368,6 +404,56 @@ export default function WaitlistPage() {
           </motion.div>
         </div>
 
+        {/* Video Section */}
+        <ScrollRevealSection>
+          <div className="container mx-auto px-4 py-16">
+            <motion.div
+              className="text-center mb-12"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-b from-white to-gray-400 bg-clip-text text-transparent">
+                See It In Action
+              </h2>
+              <motion.div 
+                className="text-xl text-gray-300 max-w-2xl mx-auto mb-8 leading-relaxed"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                viewport={{ once: true }}
+              >
+                <TextGenerateEffect 
+                  words="Watch how Easyply transforms the way you manage waitlists and engage with your audience."
+                />
+              </motion.div>
+            </motion.div>
+
+            <motion.div
+              className="max-w-2xl mx-auto"
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              <div className="relative">
+                {/* Decorative glow effect */}
+                <div className="absolute -inset-4 bg-gradient-to-r from-gray-600/20 via-transparent to-gray-600/20 rounded-3xl blur-xl" />
+                <div className="relative">
+                  <HeroVideoDialog
+                    animationStyle="from-center"
+                    videoSrc="https://www.youtube.com/embed/6a3Dz8gwjdg"
+                    thumbnailSrc="https://i.ytimg.com/vi/6a3Dz8gwjdg/maxresdefault.jpg"
+                    thumbnailAlt="Easyply Demo Video"
+                    className="rounded-2xl overflow-hidden shadow-2xl hover:shadow-gray-600/10 transition-all duration-500"
+                  />
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </ScrollRevealSection>
+
         {/* FAQ Section */}
         <ScrollRevealSection>
           <div className="container mx-auto px-4 py-16">
@@ -382,9 +468,17 @@ export default function WaitlistPage() {
                 <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-b from-white to-gray-400 bg-clip-text text-transparent">
                   Frequently asked questions
                 </h2>
-                <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                  Everything you need to know about the Wait template. Find answers to the most common questions below.
-                </p>
+                <motion.div 
+                  className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  transition={{ duration: 0.8, delay: 0.3 }}
+                  viewport={{ once: true }}
+                >
+                  <TextGenerateEffect 
+                    words="Everything you need to know about the Wait template. Find answers to the most common questions below."
+                  />
+                </motion.div>
               </motion.div>
 
               <div className="space-y-4">
@@ -403,6 +497,9 @@ export default function WaitlistPage() {
             </div>
           </div>
         </ScrollRevealSection>
+
+        {/* Footer */}
+        <Footer />
       </div>
 
       {/* Confetti Component */}
