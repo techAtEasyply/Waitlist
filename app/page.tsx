@@ -23,6 +23,7 @@ import { HeroVideoDialog } from "@/components/video-box"
 export default function WaitlistPage() {
   const [email, setEmail] = useState("")
   const [showConfetti, setShowConfetti] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
   const [timeLeft, setTimeLeft] = useState({
     days: 60,
     hours: 13,
@@ -33,6 +34,17 @@ export default function WaitlistPage() {
   const { toast } = useToast()
   const { scrollYProgress } = useScroll()
   const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
+
+  // Handle scroll to hide/show brand name
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY
+      setIsScrolled(scrollPosition > 100) // Hide after scrolling 100px
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   // Countdown timer
   useEffect(() => {
@@ -75,27 +87,27 @@ export default function WaitlistPage() {
 
   const faqItems = [
     {
-      question: "What is Wait?",
+      question: "What is Easyply?",
       answer:
-        "Wait is a modern waitlist template designed to help you build anticipation and collect early user signups for your upcoming product or service.",
+        "Easyply is your complete job search companion. We offer AI-powered resume building, ATS score analysis, job matching, interview preparation, and more - all in one platform to streamline your job hunting journey.",
     },
     {
-      question: "What's included in this template?",
+      question: "Is my data secure with Easyply?",
       answer:
-        "The template includes a responsive design, countdown timer, email collection form, FAQ section, and social proof elements.",
+        "Absolutely! We use enterprise-grade security measures to protect your personal information and resume data. Your information is encrypted and stored securely, and we never share your data with third parties without your explicit consent.",
     },
     {
-      question: "How do I customize this template?",
+      question: "Can Easyply help me practice interviews?",
       answer:
-        "You can easily customize colors, fonts, content, and styling through the provided configuration files and component props.",
+        "Yes! Our AI interview simulator conducts realistic mock interviews tailored to your target role. Get instant feedback on your responses, body language, and speaking pace to boost your confidence before the real interview.",
     },
     {
-      question: "Is there support available?",
-      answer: "Yes, we provide comprehensive documentation and community support to help you get started quickly.",
+      question: "Do I need technical skills to use Easyply?",
+      answer: "Not at all! Easyply is designed for job seekers of all backgrounds. Our intuitive interface makes it easy to build resumes, analyze ATS scores, and practice interviews - no technical expertise required.",
     },
     {
-      question: "How much will this cost?",
-      answer: "The template is available for a one-time purchase with lifetime updates and no recurring fees.",
+      question: "What will Easyply cost?",
+      answer: "We're currently in development and will announce our pricing plans closer to launch. Join our waitlist to be among the first to know about our pricing and get exclusive early access benefits.",
     },
   ]
 
@@ -133,14 +145,22 @@ export default function WaitlistPage() {
         }}
       />
 
-      {/* Top Left Brand Name */}
+      {/* Top Left Brand Name - Hides on scroll */}
       <motion.div
-        className="fixed top-6 left-6 z-20"
+        className="fixed top-4 left-4 md:top-6 md:left-6 z-50"
         initial={{ opacity: 0, x: -30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
+        animate={{ 
+          opacity: isScrolled ? 0 : 1, 
+          x: isScrolled ? -30 : 0,
+          pointerEvents: isScrolled ? 'none' : 'auto'
+        }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        style={{ 
+          position: 'fixed',
+          willChange: 'transform, opacity'
+        }}
       >
-        <h1 className="text-2xl font-bold text-gray-300">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-300 select-none">
           Easyply
         </h1>
       </motion.div>
@@ -333,7 +353,129 @@ export default function WaitlistPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.3 }}
           >
-            <div className="flex justify-center items-center gap-2 text-4xl md:text-6xl font-mono font-bold mb-4 flex-wrap">
+            {/* Mobile Layout (2x2 Grid) */}
+            <div className="block md:hidden">
+              {/* First Row: Days and Hours */}
+              <div className="flex justify-center items-center gap-4 text-3xl sm:text-4xl font-mono font-bold mb-4">
+                {[
+                  { value: timeLeft.days.toString(), label: "DAYS" },
+                  { value: timeLeft.hours.toString().padStart(2, "0"), label: "HOURS" },
+                ].map((item, index) => (
+                  <div key={item.label} className="flex items-center">
+                    <motion.div className="text-center">
+                      <motion.div
+                        className="bg-gray-900/60 rounded-lg p-3 border border-gray-800 backdrop-blur-sm relative overflow-hidden"
+                        whileHover={{
+                          scale: 1.05,
+                          borderColor: "rgb(163 230 53 / 0.5)",
+                          boxShadow: "0 0 30px rgba(163,230,53,0.2)",
+                        }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 1.5 + index * 0.1 }}
+                      >
+                        <div className="relative z-10 flex">
+                          {item.value.split('').map((digit, digitIndex) => (
+                            <div key={digitIndex} className="overflow-hidden">
+                              <AnimatePresence mode="wait">
+                                <motion.span
+                                  key={`${item.label}-${digitIndex}-${digit}`}
+                                  initial={{ y: -30, opacity: 0 }}
+                                  animate={{ y: 0, opacity: 1 }}
+                                  exit={{ y: 30, opacity: 0 }}
+                                  transition={{ 
+                                    duration: 0.4,
+                                    type: "spring",
+                                    stiffness: 300,
+                                    damping: 25
+                                  }}
+                                  className="block"
+                                >
+                                  {digit}
+                                </motion.span>
+                              </AnimatePresence>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                      <div className="text-xs text-gray-400 mt-2 font-medium">{item.label}</div>
+                    </motion.div>
+                    {index < 1 && (
+                      <motion.div
+                        className="text-gray-600 mx-3 text-3xl sm:text-4xl font-mono flex items-center justify-center"
+                        animate={{ opacity: [1, 0.5, 1] }}
+                        transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY }}
+                        style={{ lineHeight: 1, height: "fit-content", transform: "translateY(-8px)" }}
+                      >
+                        :
+                      </motion.div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+              {/* Second Row: Minutes and Seconds */}
+              <div className="flex justify-center items-center gap-4 text-3xl sm:text-4xl font-mono font-bold mb-4">
+                {[
+                  { value: timeLeft.minutes.toString().padStart(2, "0"), label: "MINUTES" },
+                  { value: timeLeft.seconds.toString().padStart(2, "0"), label: "SECONDS" },
+                ].map((item, index) => (
+                  <div key={item.label} className="flex items-center">
+                    <motion.div className="text-center">
+                      <motion.div
+                        className="bg-gray-900/60 rounded-lg p-3 border border-gray-800 backdrop-blur-sm relative overflow-hidden"
+                        whileHover={{
+                          scale: 1.05,
+                          borderColor: "rgb(163 230 53 / 0.5)",
+                          boxShadow: "0 0 30px rgba(163,230,53,0.2)",
+                        }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 1.7 + index * 0.1 }}
+                      >
+                        <div className="relative z-10 flex">
+                          {item.value.split('').map((digit, digitIndex) => (
+                            <div key={digitIndex} className="overflow-hidden">
+                              <AnimatePresence mode="wait">
+                                <motion.span
+                                  key={`${item.label}-${digitIndex}-${digit}`}
+                                  initial={{ y: -30, opacity: 0 }}
+                                  animate={{ y: 0, opacity: 1 }}
+                                  exit={{ y: 30, opacity: 0 }}
+                                  transition={{ 
+                                    duration: 0.4,
+                                    type: "spring",
+                                    stiffness: 300,
+                                    damping: 25
+                                  }}
+                                  className="block"
+                                >
+                                  {digit}
+                                </motion.span>
+                              </AnimatePresence>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                      <div className="text-xs text-gray-400 mt-2 font-medium">{item.label}</div>
+                    </motion.div>
+                    {index < 1 && (
+                      <motion.div
+                        className="text-gray-600 mx-3 text-3xl sm:text-4xl font-mono flex items-center justify-center"
+                        animate={{ opacity: [1, 0.5, 1] }}
+                        transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY }}
+                        style={{ lineHeight: 1, height: "fit-content", transform: "translateY(-8px)" }}
+                      >
+                        :
+                      </motion.div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Desktop Layout (Single Row) */}
+            <div className="hidden md:flex justify-center items-center gap-2 text-4xl md:text-6xl font-mono font-bold mb-4 flex-wrap">
               {[
                 { value: timeLeft.days.toString(), label: "DAYS" },
                 { value: timeLeft.hours.toString().padStart(2, "0"), label: "HOURS" },
@@ -392,6 +534,7 @@ export default function WaitlistPage() {
                 </div>
               ))}
             </div>
+            
             <motion.div
               className="flex items-center justify-center gap-2 text-gray-300"
               initial={{ opacity: 0 }}
@@ -476,7 +619,7 @@ export default function WaitlistPage() {
                   viewport={{ once: true }}
                 >
                   <TextGenerateEffect 
-                    words="Everything you need to know about the Wait template. Find answers to the most common questions below."
+                    words="Everything you need to know about Easyply. Find answers to the most common questions below."
                   />
                 </motion.div>
               </motion.div>
