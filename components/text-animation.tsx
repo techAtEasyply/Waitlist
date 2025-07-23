@@ -10,35 +10,38 @@ interface TextAnimationProps {
 }
 
 export function TextAnimation({ words = [""], duration = 3000, className = "" }: TextAnimationProps) {
-  const [index, setIndex] = useState(0)
+  const [currentIndex, setCurrentIndex] = useState(0)
 
   useEffect(() => {
     if (words.length <= 1) return
 
     const interval = setInterval(() => {
-      setIndex((prevIndex) => (prevIndex + 1) % words.length)
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % words.length)
     }, duration)
 
     return () => clearInterval(interval)
   }, [words, duration])
 
+  // Only show two words at a time, alternating between them
+  const currentWord = words[currentIndex % words.length]
+  const nextWord = words[(currentIndex + 1) % words.length]
+
   return (
-    <div className="relative h-[1.2em] overflow-hidden inline-block">
+    <div className="relative inline-block overflow-hidden" style={{ minHeight: "1.2em" }}>
       <AnimatePresence mode="wait">
         <motion.span
-          key={words[index]}
-          initial={{ y: -100, opacity: 0, rotateX: -90 }}
-          animate={{ y: 0, opacity: 1, rotateX: 0 }}
-          exit={{ y: 100, opacity: 0, rotateX: 90 }}
+          key={currentWord}
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -30, opacity: 0 }}
           transition={{
-            duration: 0.6,
+            duration: 0.5,
             ease: "easeInOut",
-            type: "spring",
-            stiffness: 100,
+            type: "tween"
           }}
-          className={`absolute inset-0 ${className}`}
+          className={`inline-block ${className}`}
         >
-          {words[index]}
+          {currentWord}
         </motion.span>
       </AnimatePresence>
     </div>

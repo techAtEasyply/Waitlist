@@ -10,11 +10,13 @@ import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
+import Image from "next/image"
 import { Plus, Calendar, Users } from "lucide-react"
 import { useRef } from "react"
 import { Confetti } from "@/components/confetti"
-import { TextAnimation } from "@/components/text-animation"
+import { RotatingText } from "@/components/rotating-text"
 import { Ripple } from "@/components/ripple"
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect"
 
 export default function WaitlistPage() {
   const [email, setEmail] = useState("")
@@ -135,27 +137,17 @@ export default function WaitlistPage() {
           {/* Logo */}
           <motion.div
             className="mb-8 flex justify-center"
-            initial={{ opacity: 0, scale: 0.5, rotateY: 180 }}
-            animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, ease: "easeOut" }}
           >
-            <motion.div
-              className="w-16 h-16 bg-lime-400 rounded-2xl flex items-center justify-center shadow-lg shadow-lime-400/20"
-              whileHover={{
-                scale: 1.1,
-                rotate: 5,
-                boxShadow: "0 0 30px rgba(163,230,53,0.4)",
-              }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
-              <div className="w-8 h-8 bg-black rounded transform rotate-12">
-                <div className="w-full h-full bg-lime-400 rounded transform -rotate-12 flex items-center justify-center">
-                  <div className="w-2 h-6 bg-black rounded-full" />
-                  <div className="w-2 h-4 bg-black rounded-full ml-1" />
-                  <div className="w-2 h-5 bg-black rounded-full ml-1" />
-                </div>
-              </div>
-            </motion.div>
+            <Image
+              src="/logo2.png"
+              alt="Company Logo"
+              width={80}
+              height={80}
+              className="rounded-full"
+            />
           </motion.div>
 
           {/* Badge */}
@@ -186,25 +178,27 @@ export default function WaitlistPage() {
               className="flex items-center justify-center gap-4 flex-wrap"
             >
               <span className="bg-gradient-to-b from-white via-gray-100 to-gray-400 bg-clip-text text-transparent">
-                Get early
+                Join the 
               </span>
-              <TextAnimation
-                words={["access", "to Easyply"]}
-                duration={3000}
-                className="bg-gradient-to-b from-lime-400 to-lime-500 bg-clip-text text-transparent"
-              />
+              <span className="bg-gradient-to-b from-lime-400 to-lime-500 bg-clip-text text-transparent">
+                Waitlist!
+              </span>
             </motion.div>
           </div>
 
           {/* Description */}
-          <motion.p
-            className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed backdrop-blur-sm"
+          <motion.div
+            className="w-full mb-12 max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.7 }}
           >
-            Be amongst the first to experience Wait and launch a viral waitlist. Sign up to be notified when we launch!
-          </motion.p>
+            <div className="text-xl text-gray-300 leading-relaxed backdrop-blur-sm">
+              <TextGenerateEffect 
+                words="Be amongst the first to experience Wait and launch a viral waitlist. Sign up to be notified when we launch!"
+              />
+            </div>
+          </motion.div>
 
           {/* Email form with enhanced glowing effect */}
           <motion.form
@@ -266,7 +260,7 @@ export default function WaitlistPage() {
               {[1, 2, 3, 4, 5].map((i) => (
                 <motion.div
                   key={i}
-                  className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 border-2 border-gray-900 flex items-center justify-center backdrop-blur-sm"
+                  className="w-10 h-10 rounded-full border-2 border-gray-900 overflow-hidden"
                   initial={{ opacity: 0, x: -20, scale: 0 }}
                   animate={{ opacity: 1, x: 0, scale: 1 }}
                   transition={{
@@ -281,7 +275,13 @@ export default function WaitlistPage() {
                     boxShadow: "0 0 20px rgba(163,230,53,0.3)",
                   }}
                 >
-                  <Users className="w-4 h-4 text-gray-400" />
+                  <Image
+                    src={`/avatar${i}.png`}
+                    alt={`Avatar ${i}`}
+                    width={40}
+                    height={40}
+                    className="w-full h-full object-cover"
+                  />
                 </motion.div>
               ))}
             </div>
@@ -309,48 +309,51 @@ export default function WaitlistPage() {
                 { value: timeLeft.minutes.toString().padStart(2, "0"), label: "MINUTES" },
                 { value: timeLeft.seconds.toString().padStart(2, "0"), label: "SECONDS" },
               ].map((item, index) => (
-                <motion.div key={item.label} className="text-center relative">
-                  <motion.div
-                    className="bg-gray-900/60 rounded-lg p-4 border border-gray-800 backdrop-blur-sm relative overflow-hidden"
-                    whileHover={{
-                      scale: 1.05,
-                      borderColor: "rgb(163 230 53 / 0.5)",
-                      boxShadow: "0 0 30px rgba(163,230,53,0.2)",
-                    }}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 1.5 + index * 0.1 }}
-                  >
+                <div key={item.label} className="flex items-center">
+                  <motion.div className="text-center">
                     <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-lime-400/10 to-transparent"
-                      animate={{ x: [-100, 200] }}
-                      transition={{
-                        duration: 3,
-                        repeat: Number.POSITIVE_INFINITY,
-                        delay: index * 0.5,
+                      className="bg-gray-900/60 rounded-lg p-4 border border-gray-800 backdrop-blur-sm relative overflow-hidden"
+                      whileHover={{
+                        scale: 1.05,
+                        borderColor: "rgb(163 230 53 / 0.5)",
+                        boxShadow: "0 0 30px rgba(163,230,53,0.2)",
                       }}
-                    />
-                    <motion.span
-                      key={item.value}
-                      initial={{ y: -20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ duration: 0.3 }}
-                      className="relative z-10"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 1.5 + index * 0.1 }}
                     >
-                      {item.value}
-                    </motion.span>
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-lime-400/10 to-transparent"
+                        animate={{ x: [-100, 200] }}
+                        transition={{
+                          duration: 3,
+                          repeat: Number.POSITIVE_INFINITY,
+                          delay: index * 0.5,
+                        }}
+                      />
+                      <motion.span
+                        key={item.value}
+                        initial={{ y: -20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                        className="relative z-10"
+                      >
+                        {item.value}
+                      </motion.span>
+                    </motion.div>
+                    <div className="text-xs text-gray-400 mt-2 font-medium">{item.label}</div>
                   </motion.div>
-                  <div className="text-xs text-gray-400 mt-2 font-medium">{item.label}</div>
                   {index < 3 && (
                     <motion.div
-                      className="text-gray-600 absolute top-1/2 -translate-y-1/2 -right-4 hidden sm:block"
+                      className="text-gray-600 mx-2 text-4xl md:text-6xl font-mono flex items-center justify-center"
                       animate={{ opacity: [1, 0.5, 1] }}
                       transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY }}
+                      style={{ lineHeight: 1, height: "fit-content", transform: "translateY(-8px)" }}
                     >
                       :
                     </motion.div>
                   )}
-                </motion.div>
+                </div>
               ))}
             </div>
             <motion.div
@@ -431,8 +434,8 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <motion.div layout whileHover={{ scale: 1.01 }} transition={{ type: "spring", stiffness: 300 }}>
-      <Card className="bg-gray-900/40 border-gray-800 hover:border-gray-700 transition-all duration-300 overflow-hidden backdrop-blur-sm hover:bg-gray-900/60">
+    <motion.div layout whileHover={!isOpen ? { scale: 1.01 } : {}} transition={{ type: "spring", stiffness: 300 }}>
+      <Card className={`bg-gray-900/40 border-gray-800 transition-all duration-300 overflow-hidden ${isOpen ? 'backdrop-blur-0' : 'backdrop-blur-sm hover:backdrop-blur-sm'} hover:border-gray-700 hover:bg-gray-900/60`}>
         <motion.button
           onClick={() => setIsOpen(!isOpen)}
           className="w-full p-6 text-left flex items-center justify-between group"
