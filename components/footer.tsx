@@ -56,9 +56,9 @@ export function Footer() {
       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
 
       <div className="relative z-10 container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-6 gap-8">
           {/* Brand Section */}
-          <div className="lg:col-span-2">
+          <div className="col-span-2 lg:col-span-2">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -72,8 +72,7 @@ export function Footer() {
               </div>
 
               <p className="text-gray-400 mb-6 max-w-sm leading-relaxed">
-                Building the future of waitlist management. Join thousands of others waiting for early access to our
-                revolutionary platform.
+              Empowering your job search with AI-driven resumes, interviews, and personalized job matches.
               </p>
 
               {/* Social Links */}
@@ -98,37 +97,113 @@ export function Footer() {
             </motion.div>
           </div>
 
-          {/* Links Sections */}
-          {footerLinks.map((section, sectionIndex) => (
-            <div key={section.title} className="lg:col-span-1">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: sectionIndex * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <h3 className="text-white font-semibold mb-4">{section.title}</h3>
-                <ul className="space-y-3">
-                  {section.links.map((link, linkIndex) => (
-                    <motion.li
-                      key={link.name}
-                      initial={{ opacity: 0, x: -10 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.4, delay: sectionIndex * 0.1 + linkIndex * 0.05 }}
+          {/* Links Sections - Mobile: 2x2 Grid, Desktop: Single Row */}
+          <div className="col-span-2 lg:col-span-4">
+            {/* Mobile Layout: 2x2 Grid */}
+            <div className="grid grid-cols-2 gap-8 lg:hidden">
+              {/* First Row: Product and Company */}
+              <div className="col-span-2 flex justify-between gap-8">
+                {footerLinks.slice(0, 2).map((section, sectionIndex) => (
+                  <div key={section.title} className="flex-1">
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: sectionIndex * 0.1 }}
                       viewport={{ once: true }}
                     >
-                      <a
-                        href={link.href}
-                        className="text-gray-400 hover:text-lime-400 transition-colors duration-300 text-sm"
-                      >
-                        {link.name}
-                      </a>
-                    </motion.li>
-                  ))}
-                </ul>
-              </motion.div>
+                      <h3 className="text-white font-semibold mb-4 text-sm">{section.title}</h3>
+                      <ul className="space-y-3">
+                        {section.links.map((link, linkIndex) => (
+                          <motion.li
+                            key={link.name}
+                            initial={{ opacity: 0, x: -10 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.4, delay: sectionIndex * 0.1 + linkIndex * 0.05 }}
+                            viewport={{ once: true }}
+                          >
+                            <a
+                              href={link.href}
+                              className="text-gray-400 hover:text-lime-400 transition-colors duration-300 text-xs"
+                            >
+                              {link.name}
+                            </a>
+                          </motion.li>
+                        ))}
+                      </ul>
+                    </motion.div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Second Row: Resources and Legal */}
+              <div className="col-span-2 flex justify-between gap-8">
+                {footerLinks.slice(2, 4).map((section, sectionIndex) => (
+                  <div key={section.title} className="flex-1">
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: (sectionIndex + 2) * 0.1 }}
+                      viewport={{ once: true }}
+                    >
+                      <h3 className="text-white font-semibold mb-4 text-sm">{section.title}</h3>
+                      <ul className="space-y-3">
+                        {section.links.map((link, linkIndex) => (
+                          <motion.li
+                            key={link.name}
+                            initial={{ opacity: 0, x: -10 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.4, delay: (sectionIndex + 2) * 0.1 + linkIndex * 0.05 }}
+                            viewport={{ once: true }}
+                          >
+                            <a
+                              href={link.href}
+                              className="text-gray-400 hover:text-lime-400 transition-colors duration-300 text-xs"
+                            >
+                              {link.name}
+                            </a>
+                          </motion.li>
+                        ))}
+                      </ul>
+                    </motion.div>
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
+
+            {/* Desktop Layout: Original Single Row */}
+            <div className="hidden lg:grid lg:grid-cols-4 lg:gap-8">
+              {footerLinks.map((section, sectionIndex) => (
+                <div key={section.title}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: sectionIndex * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <h3 className="text-white font-semibold mb-4 text-base">{section.title}</h3>
+                    <ul className="space-y-3">
+                      {section.links.map((link, linkIndex) => (
+                        <motion.li
+                          key={link.name}
+                          initial={{ opacity: 0, x: -10 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.4, delay: sectionIndex * 0.1 + linkIndex * 0.05 }}
+                          viewport={{ once: true }}
+                        >
+                          <a
+                            href={link.href}
+                            className="text-gray-400 hover:text-lime-400 transition-colors duration-300 text-sm"
+                          >
+                            {link.name}
+                          </a>
+                        </motion.li>
+                      ))}
+                    </ul>
+                  </motion.div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Newsletter Section */}
@@ -140,20 +215,20 @@ export function Footer() {
           viewport={{ once: true }}
         >
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div>
+            <div className="text-center md:text-left">
               <h3 className="text-white font-semibold mb-2">Stay updated</h3>
               <p className="text-gray-400 text-sm">
                 Get notified about our progress and be the first to know when we launch.
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder:text-gray-500 focus:border-lime-400 focus:outline-none transition-colors duration-300 min-w-[200px]"
+                className="px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder:text-gray-500 focus:border-lime-400 focus:outline-none transition-colors duration-300 w-full sm:min-w-[200px]"
               />
               <motion.button
-                className="px-6 py-2 bg-lime-400 text-black font-medium rounded-lg hover:bg-lime-300 transition-colors duration-300"
+                className="px-6 py-2 bg-lime-400 text-black font-medium rounded-lg hover:bg-lime-300 transition-colors duration-300 w-full sm:w-auto"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
