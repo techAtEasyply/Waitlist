@@ -149,13 +149,13 @@ export default function WaitlistPage() {
       <motion.div
         className="fixed top-4 left-4 md:top-6 md:left-6 z-50"
         initial={{ opacity: 0, x: -30 }}
-        animate={{ 
-          opacity: isScrolled ? 0 : 1, 
+        animate={{
+          opacity: isScrolled ? 0 : 1,
           x: isScrolled ? -30 : 0,
           pointerEvents: isScrolled ? 'none' : 'auto'
         }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        style={{ 
+        style={{
           position: 'fixed',
           willChange: 'transform, opacity'
         }}
@@ -167,10 +167,10 @@ export default function WaitlistPage() {
 
       <div className="relative z-10">
         {/* Hero Section */}
-        <div className="container mx-auto px-4 py-16 text-center">
+        <div className="container mx-auto px-4 py-16  text-center">
           {/* Logo */}
           <motion.div
-            className="mb-8 flex justify-center"
+            className="mb-8 flex h-10 justify-center"
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, ease: "easeOut" }}
@@ -180,7 +180,7 @@ export default function WaitlistPage() {
               alt="Company Logo"
               width={80}
               height={80}
-              className="rounded-full"
+              className="rounded-full absolute top-8 mb-32"
             />
           </motion.div>
 
@@ -212,7 +212,7 @@ export default function WaitlistPage() {
               className="flex items-center justify-center gap-4 flex-wrap"
             >
               <span className="bg-gradient-to-b from-white via-gray-100 to-gray-400 bg-clip-text text-transparent">
-                Join The 
+                Join The
               </span>
               <span className="bg-gradient-to-b from-lime-400 to-lime-500 bg-clip-text text-transparent">
                 Waitlist!
@@ -227,14 +227,14 @@ export default function WaitlistPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.7 }}
           >
-            <motion.div 
+            <motion.div
               className="text-xl text-gray-300 leading-relaxed backdrop-blur-sm"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <TextGenerateEffect 
+              <TextGenerateEffect
                 words="Be amongst the first to experience Easyply. Sign up to be notified when we launch!"
               />
             </motion.div>
@@ -260,8 +260,8 @@ export default function WaitlistPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-400 focus:border-lime-400 transition-all duration-500 backdrop-blur-sm
                   shadow-[0_0_20px_rgba(163,230,53,0.2)]
-                  hover:shadow-[0_0_30px_rgba(163,230,53,0.4)] 
-                  hover:border-lime-400/70 
+                  hover:shadow-[0_0_30px_rgba(163,230,53,0.4)]
+                  hover:border-lime-400/70
                   hover:bg-gray-900/70
                   focus:shadow-[0_0_40px_rgba(163,230,53,0.6)]
                   group-hover:shadow-[0_0_25px_rgba(163,230,53,0.3)]"
@@ -383,7 +383,7 @@ export default function WaitlistPage() {
                                   initial={{ y: -30, opacity: 0 }}
                                   animate={{ y: 0, opacity: 1 }}
                                   exit={{ y: 30, opacity: 0 }}
-                                  transition={{ 
+                                  transition={{
                                     duration: 0.4,
                                     type: "spring",
                                     stiffness: 300,
@@ -413,7 +413,7 @@ export default function WaitlistPage() {
                   </div>
                 ))}
               </div>
-              
+
               {/* Second Row: Minutes and Seconds */}
               <div className="flex justify-center items-center gap-4 text-3xl sm:text-4xl font-mono font-bold mb-4">
                 {[
@@ -442,7 +442,7 @@ export default function WaitlistPage() {
                                   initial={{ y: -30, opacity: 0 }}
                                   animate={{ y: 0, opacity: 1 }}
                                   exit={{ y: 30, opacity: 0 }}
-                                  transition={{ 
+                                  transition={{
                                     duration: 0.4,
                                     type: "spring",
                                     stiffness: 300,
@@ -504,7 +504,7 @@ export default function WaitlistPage() {
                                 initial={{ y: -30, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 exit={{ y: 30, opacity: 0 }}
-                                transition={{ 
+                                transition={{
                                   duration: 0.4,
                                   type: "spring",
                                   stiffness: 300,
@@ -534,7 +534,7 @@ export default function WaitlistPage() {
                 </div>
               ))}
             </div>
-            
+
             <motion.div
               className="flex items-center justify-center gap-2 text-gray-300"
               initial={{ opacity: 0 }}
@@ -560,14 +560,14 @@ export default function WaitlistPage() {
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-b from-white to-gray-400 bg-clip-text text-transparent">
                 See It In Action
               </h2>
-              <motion.div 
+              <motion.div
                 className="text-xl text-gray-300 max-w-2xl mx-auto mb-8 leading-relaxed"
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
                 viewport={{ once: true }}
               >
-                <TextGenerateEffect 
+                <TextGenerateEffect
                   words="Watch how Easyply transforms the way you manage waitlists and engage with your audience."
                 />
               </motion.div>
@@ -611,14 +611,14 @@ export default function WaitlistPage() {
                 <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-b from-white to-gray-400 bg-clip-text text-transparent">
                   Frequently asked questions
                 </h2>
-                <motion.div 
+                <motion.div
                   className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed"
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   transition={{ duration: 0.8, delay: 0.3 }}
                   viewport={{ once: true }}
                 >
-                  <TextGenerateEffect 
+                  <TextGenerateEffect
                     words="Everything you need to know about Easyply. Find answers to the most common questions below."
                   />
                 </motion.div>
