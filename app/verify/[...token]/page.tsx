@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { CheckCircle, Mail, ArrowLeft, Sparkles, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import { Confetti } from "@/components/confetti"
 import { Ripple } from "@/components/ripple"
 import { FallingStars } from "@/components/falling-stars"
@@ -22,13 +22,52 @@ export default function VerifyPage() {
   const [errorMessage, setErrorMessage] = useState("")
   const [responseType, setResponseType] = useState<'success' | 'error'>('success')
   
+  const params = useParams()
   const searchParams = useSearchParams()
   const { toast } = useToast()
   const { scrollYProgress } = useScroll()
   const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
 
-  // Extract token from query params
-  const token = searchParams.get('token')
+  // Extract token from params (for /verify/token) or query params (for /verify?token=token)
+  const token = searchParams.get('token') || (params?.token ? (Array.isArray(params.token) ? params.token.join('/') : params.token) : null)
+
+  // Function to extract email from token
+  const extractEmailFromToken = (token: string): string => {
+    try {
+      // In a real implementation, you would decode the JWT token
+      // For JWT tokens, you would typically use a library like jose or jsonwebtoken
+      // Here's a mock implementation that assumes the token contains email info
+      
+      // If it's a JWT token, it would look like: header.payload.signature
+      const parts = token.split('.')
+      if (parts.length === 3) {
+        // Decode JWT payload (base64)
+        try {
+          const payload = JSON.parse(atob(parts[1]))
+          return payload.email || payload.sub || ""
+        } catch (e) {
+          console.error('Error decoding JWT:', e)
+        }
+      }
+      
+      // If it's a simple base64 encoded email
+      try {
+        const decoded = atob(token)
+        // Check if it looks like an email
+        if (decoded.includes('@')) {
+          return decoded
+        }
+      } catch (e) {
+        console.error('Error decoding base64:', e)
+      }
+      
+      // Fallback: return empty string if we can't extract email
+      return ""
+    } catch (error) {
+      console.error('Error extracting email from token:', error)
+      return ""
+    }
+  }
 
   // Verify token and get user data
   useEffect(() => {

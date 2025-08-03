@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -14,7 +15,6 @@ import Image from "next/image"
 import { Plus, Calendar, Users } from "lucide-react"
 import { useRef } from "react"
 import { Confetti } from "@/components/confetti"
-import { RotatingText } from "@/components/rotating-text"
 import { Ripple } from "@/components/ripple"
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect"
 import { Footer } from "@/components/footer"
@@ -24,6 +24,7 @@ export default function WaitlistPage() {
   const [email, setEmail] = useState("")
   const [showConfetti, setShowConfetti] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [timeLeft, setTimeLeft] = useState({
     days: 60,
     hours: 13,
@@ -32,6 +33,7 @@ export default function WaitlistPage() {
   })
 
   const { toast } = useToast()
+  const router = useRouter()
   const { scrollYProgress } = useScroll()
   const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
 
@@ -66,13 +68,32 @@ export default function WaitlistPage() {
     return () => clearInterval(timer)
   }, [])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (email) {
-      // Show toast notification
+    if (!email) return
+
+    setIsLoading(true)
+    
+    try {
+      // Make POST request to /waitlist endpoint with email in body
+      const response = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to join waitlist')
+      }
+
+      // Show success toast with inbox message
       toast({
         title: "Thank you for joining the waitlist!",
-        description: "We will get back to you soon.",
+        description: data.message || "Please check your inbox to verify your email",
         duration: 5000,
       })
 
@@ -80,8 +101,19 @@ export default function WaitlistPage() {
       setShowConfetti(true)
       setTimeout(() => setShowConfetti(false), 100)
 
-      // Clear email
-      setEmail("")
+      // Clear the email input
+      setEmail('')
+
+    } catch (error) {
+      console.error('Error joining waitlist:', error)
+      toast({
+        title: "Something went wrong",
+        description: "Please try again later.",
+        duration: 5000,
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -258,13 +290,15 @@ export default function WaitlistPage() {
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
                 className="w-full bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-400 focus:border-lime-400 transition-all duration-500 backdrop-blur-sm
                   shadow-[0_0_20px_rgba(163,230,53,0.2)]
                   hover:shadow-[0_0_30px_rgba(163,230,53,0.4)]
                   hover:border-lime-400/70
                   hover:bg-gray-900/70
                   focus:shadow-[0_0_40px_rgba(163,230,53,0.6)]
-                  group-hover:shadow-[0_0_25px_rgba(163,230,53,0.3)]"
+                  group-hover:shadow-[0_0_25px_rgba(163,230,53,0.3)]
+                  disabled:opacity-50 disabled:cursor-not-allowed"
                 required
               />
               <motion.div
@@ -283,19 +317,35 @@ export default function WaitlistPage() {
             >
               <Button
                 type="submit"
-                className="bg-lime-400 text-black hover:bg-lime-300 font-semibold px-8 shadow-lg hover:shadow-lime-400/25 transition-all duration-300 relative overflow-hidden"
+                disabled={isLoading}
+                className="bg-lime-400 text-black hover:bg-lime-300 font-semibold px-8 shadow-lg hover:shadow-lime-400/25 transition-all duration-300 relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span className="relative z-10">Join waitlist</span>
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                  animate={{ x: [-100, 200] }}
-                  transition={{
-                    duration: 2,
-                    repeat: Number.POSITIVE_INFINITY,
-                    repeatDelay: 1,
-                    ease: "linear",
-                  }}
-                />
+                <span className="relative z-10 flex items-center gap-2">
+                  {isLoading ? (
+                    <>
+                      <motion.div
+                        className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      />
+                      Joining...
+                    </>
+                  ) : (
+                    "Join waitlist"
+                  )}
+                </span>
+                {!isLoading && (
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                    animate={{ x: [-100, 200] }}
+                    transition={{
+                      duration: 2,
+                      repeat: Number.POSITIVE_INFINITY,
+                      repeatDelay: 1,
+                      ease: "linear",
+                    }}
+                  />
+                )}
               </Button>
             </motion.div>
           </motion.form>

@@ -1,131 +1,93 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion, useScroll, useTransform } from "framer-motion"
+import { motion } from "framer-motion"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Loader2, CheckCircle, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Card } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
-import { CheckCircle, Mail, ArrowLeft, Sparkles, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
-import { Confetti } from "@/components/confetti"
 import { Ripple } from "@/components/ripple"
 import { FallingStars } from "@/components/falling-stars"
 
-export default function VerifyPage() {
-  const [email, setEmail] = useState("")
-  const [showConfetti, setShowConfetti] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [verificationStatus, setVerificationStatus] = useState<'loading' | 'success' | 'error'>('loading')
+export default function WaitlistPage() {
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const [errorMessage, setErrorMessage] = useState("")
-  const [responseType, setResponseType] = useState<'success' | 'error'>('success')
+  const [token, setToken] = useState("")
   
+  const router = useRouter()
   const searchParams = useSearchParams()
-  const { toast } = useToast()
-  const { scrollYProgress } = useScroll()
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
-
-  // Extract token from query params
-  const token = searchParams.get('token')
-
-  // Verify token and get user data
+  
+  // Get email parameter - useSearchParams automatically handles URL decoding
+  const [email, setEmail] = useState<string | null>(null)
+  
   useEffect(() => {
-    const verifyToken = async () => {
-      if (!token) {
-        setVerificationStatus('error')
-        setErrorMessage('Invalid verification link')
-        setIsLoading(false)
+    const emailParam = searchParams.get('email')
+    if (emailParam) {
+      // Explicitly decode the parameter to handle cases where Next.js doesn't auto-decode
+      const decodedEmail = decodeURIComponent(emailParam)
+      setEmail(decodedEmail)
+      console.log('Raw email parameter:', emailParam)
+      console.log('Decoded email parameter:', decodedEmail)
+    } else {
+      setEmail(null)
+      console.log('No email parameter found')
+    }
+  }, [searchParams])
+
+  const { toast } = useToast()
+
+  useEffect(() => {
+    const joinWaitlist = async () => {
+      if (!email) {
+        setStatus('error')
+        setErrorMessage('Email is required')
         return
       }
 
       try {
-        // Make API call to verify token with GET request and token as query parameter
-        const response = await fetch(`http://backend.easyply.in/verify?token=${encodeURIComponent(token)}`, {
-          method: 'GET',
+        const response = await fetch('http://backend.easyply.in/verify', {
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          body: JSON.stringify({ email }),
         })
 
         const data = await response.json()
 
         if (!response.ok) {
-          throw new Error(data.message || 'Verification failed')
+          throw new Error(data.message || 'Failed to join waitlist')
         }
 
-        // Extract email and response type from backend response
-        const userEmail = data.email
-        const responseStatus = data.type // 'success' or 'error'
-        
-        setEmail(userEmail)
-        setResponseType(responseStatus)
-        
-        if (responseStatus === 'success') {
-          setVerificationStatus('success')
-          
-          // Trigger confetti after successful verification
-          setTimeout(() => {
-            setShowConfetti(true)
-            setTimeout(() => setShowConfetti(false), 100)
-          }, 500)
-        } else {
-          setVerificationStatus('error')
-          setErrorMessage(data.message || 'Verification failed')
-        }
-        
+        // Extract token from response
+        const responseToken = data.token
+        setToken(responseToken)
+        setStatus('success')
+
+        // Show success message briefly before redirecting
+        toast({
+          title: "Success!",
+          description: "Redirecting to verification...",
+          duration: 2000,
+        })
+
+        // Redirect to verify page after 2 seconds
+        setTimeout(() => {
+          router.push(`/verify/${responseToken}`)
+        }, 2000)
+
       } catch (error) {
-        console.error('Verification error:', error)
-        setVerificationStatus('error')
-        setErrorMessage(error instanceof Error ? error.message : 'Verification failed. Please try again.')
-      } finally {
-        setIsLoading(false)
+        console.error('Error joining waitlist:', error)
+        setStatus('error')
+        setErrorMessage(error instanceof Error ? error.message : 'Something went wrong. Please try again.')
       }
     }
 
-    verifyToken()
-  }, [token])
-
-  const handleResendEmail = async () => {
-    if (!email) {
-      toast({
-        title: "Email not found",
-        description: "Please try joining the waitlist again.",
-        duration: 5000,
-        variant: "destructive",
-      })
-      return
-    }
-
-    try {
-      // Make API call to resend verification email
-      const response = await fetch('http://backend.easyply.in/verify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to resend email')
-      }
-
-      toast({
-        title: "Verification email sent!",
-        description: "Check your inbox for the verification link.",
-        duration: 5000,
-      })
-    } catch (error) {
-      toast({
-        title: "Failed to resend email",
-        description: "Please try again later.",
-        duration: 5000,
-        variant: "destructive",
-      })
-    }
-  }
+    joinWaitlist()
+  }, [email, router, toast])
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white relative overflow-hidden">
@@ -137,13 +99,6 @@ export default function VerifyPage() {
       <div className="absolute inset-0 bg-black/40" />
 
       {/* Animated gradients */}
-      <motion.div
-        className="absolute inset-0"
-        style={{
-          background: `radial-gradient(circle at 50% ${backgroundY}, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.8) 100%)`,
-        }}
-      />
-
       <motion.div
         className="absolute inset-0"
         animate={{
@@ -169,7 +124,7 @@ export default function VerifyPage() {
               href="/"
               className="inline-flex items-center gap-2 text-gray-400 hover:text-lime-400 transition-colors duration-300"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <span>←</span>
               Back to home
             </Link>
           </motion.div>
@@ -178,8 +133,7 @@ export default function VerifyPage() {
         {/* Main Content */}
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto text-center">
-            {isLoading ? (
-              // Loading State
+            {status === 'loading' && (
               <>
                 <motion.div
                   className="mb-8 flex justify-center"
@@ -197,7 +151,7 @@ export default function VerifyPage() {
                 >
                   <Badge className="mb-6 bg-lime-400/10 text-lime-400 border-lime-400/20 backdrop-blur-sm px-4 py-2">
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    VERIFYING...
+                    JOINING WAITLIST...
                   </Badge>
                 </motion.div>
 
@@ -218,11 +172,14 @@ export default function VerifyPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.7 }}
                 >
-                  We're verifying your email and setting up your waitlist account.
+                  We're adding{" "}
+                  <span className="text-lime-400 font-medium">{email}</span>{" "}
+                  to our waitlist. This will only take a moment.
                 </motion.p>
               </>
-            ) : verificationStatus === 'success' && responseType === 'success' ? (
-              // Success State
+            )}
+
+            {status === 'success' && (
               <>
                 <motion.div
                   className="mb-8 flex justify-center"
@@ -239,8 +196,8 @@ export default function VerifyPage() {
                   transition={{ duration: 0.8, delay: 0.3 }}
                 >
                   <Badge className="mb-6 bg-lime-400/10 text-lime-400 border-lime-400/20 backdrop-blur-sm px-4 py-2">
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    SUCCESSFULLY VERIFIED
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    SUCCESS
                   </Badge>
                 </motion.div>
 
@@ -250,12 +207,8 @@ export default function VerifyPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.5 }}
                 >
-                  <span className="bg-gradient-to-b from-white via-gray-100 to-gray-400 bg-clip-text text-transparent">
-                    Welcome to the
-                  </span>
-                  <br />
                   <span className="bg-gradient-to-r from-lime-400 to-lime-500 bg-clip-text text-transparent">
-                    waitlist!
+                    Welcome aboard!
                   </span>
                 </motion.h1>
 
@@ -265,34 +218,14 @@ export default function VerifyPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.7 }}
                 >
-                  Congratulations! Your email{" "}
+                  Successfully added{" "}
                   <span className="text-lime-400 font-medium">{email}</span>{" "}
-                  has been successfully verified and added to our waitlist. You'll be among the first to know when we launch!
+                  to the waitlist. Redirecting to verification...
                 </motion.p>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.9 }}
-                >
-                  <Card className="bg-gray-900/40 border-gray-800 backdrop-blur-sm p-6 mb-8">
-                    <div className="flex items-center justify-center gap-3 mb-4">
-                      <CheckCircle className="w-6 h-6 text-lime-400" />
-                      <h3 className="text-lg font-semibold text-white">You're all set!</h3>
-                    </div>
-                    <p className="text-gray-400 mb-4 text-sm">
-                      We'll notify you via email when Easyply is ready to launch. Keep an eye on your inbox!
-                    </p>
-                    <Link href="/">
-                      <Button className="bg-lime-400 text-black hover:bg-lime-300 font-semibold px-6">
-                        Back to Home
-                      </Button>
-                    </Link>
-                  </Card>
-                </motion.div>
               </>
-            ) : (
-              // Error State (handles both verificationStatus === 'error' and responseType === 'error')
+            )}
+
+            {status === 'error' && (
               <>
                 <motion.div
                   className="mb-8 flex justify-center"
@@ -301,7 +234,7 @@ export default function VerifyPage() {
                   transition={{ duration: 0.8, type: "spring", stiffness: 200 }}
                 >
                   <div className="w-24 h-24 rounded-full bg-red-500/20 flex items-center justify-center">
-                    <span className="text-4xl">❌</span>
+                    <AlertCircle className="w-12 h-12 text-red-400" />
                   </div>
                 </motion.div>
 
@@ -311,7 +244,8 @@ export default function VerifyPage() {
                   transition={{ duration: 0.8, delay: 0.3 }}
                 >
                   <Badge className="mb-6 bg-red-500/10 text-red-400 border-red-500/20 backdrop-blur-sm px-4 py-2">
-                    {verificationStatus === 'error' ? 'VERIFICATION FAILED' : 'REQUEST FAILED'}
+                    <AlertCircle className="w-4 h-4 mr-2" />
+                    ERROR
                   </Badge>
                 </motion.div>
 
@@ -321,12 +255,8 @@ export default function VerifyPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.5 }}
                 >
-                  <span className="bg-gradient-to-b from-white via-gray-100 to-gray-400 bg-clip-text text-transparent">
-                    Something went
-                  </span>
-                  <br />
                   <span className="bg-gradient-to-r from-red-400 to-red-500 bg-clip-text text-transparent">
-                    wrong
+                    Oops!
                   </span>
                 </motion.h1>
 
@@ -336,48 +266,25 @@ export default function VerifyPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.7 }}
                 >
-                  {errorMessage || "We couldn't process your request. Please try again or contact support."}
-                  {email && (
-                    <>
-                      <br />
-                      <span className="text-gray-400 text-lg mt-2 block">
-                        Email: <span className="text-red-400">{email}</span>
-                      </span>
-                    </>
-                  )}
+                  {errorMessage}
                 </motion.p>
 
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.9 }}
-                  className="space-y-4"
                 >
-                  <div className="flex gap-4 justify-center flex-wrap">
-                    <Link href="/">
-                      <Button className="bg-lime-400 text-black hover:bg-lime-300 font-semibold px-8">
-                        Try Again
-                      </Button>
-                    </Link>
-                    {email && (
-                      <Button
-                        onClick={handleResendEmail}
-                        variant="outline"
-                        className="border-lime-400/30 text-lime-400 hover:bg-lime-400/10 hover:border-lime-400/50 bg-transparent"
-                      >
-                        Resend Email
-                      </Button>
-                    )}
-                  </div>
+                  <Link href="/">
+                    <Button className="bg-lime-400 text-black hover:bg-lime-300 font-semibold px-8">
+                      Try Again
+                    </Button>
+                  </Link>
                 </motion.div>
               </>
             )}
           </div>
         </div>
       </div>
-
-      {/* Confetti */}
-      <Confetti trigger={showConfetti} />
 
       {/* Toast Container */}
       <Toaster />
